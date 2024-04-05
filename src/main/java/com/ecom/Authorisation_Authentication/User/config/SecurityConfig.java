@@ -1,6 +1,7 @@
 package com.ecom.Authorisation_Authentication.User.config;
 import com.ecom.Authorisation_Authentication.User.service.UserService;
 import com.ecom.Authorisation_Authentication.User.util.JwtAuthFilter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 @Configuration
 @EnableWebSecurity
@@ -27,7 +27,7 @@ public class SecurityConfig {
             "/api/v1/auth/register"
     };
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    HttpSecurity filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable) // Disabling CSRF as we use JWT which is immune to CSRF
                 .authorizeHttpRequests(auth -> auth
