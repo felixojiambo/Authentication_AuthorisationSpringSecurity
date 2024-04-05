@@ -15,12 +15,17 @@ import java.util.Set;
 @Service
 public class UserService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+
+    private final UserRepository userRepository;
+
+
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
+    public UserService(UserRepository userRepository,PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder=passwordEncoder;
+    }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
