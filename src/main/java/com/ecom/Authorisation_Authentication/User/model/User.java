@@ -6,10 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.annotation.JsonIgnore; // Import Jackson annotation
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
 @Builder
@@ -25,10 +32,23 @@ public class User implements UserDetails {
     private String username;
     @Column(unique = true)
     private String email;
-    private String password; // Note: In real scenarios, exclude from JSON serialization with @JsonIgnore
-    private Set<Role> authorities; // Roles are simplified for illustration
+    @JsonIgnore//prevent password serialisation
+    private String password;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles;
     private boolean accountNonExpired;
     private boolean isEnabled;
     private boolean accountNonLocked;
     private boolean credentialsNonExpired;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.name()))
+                .collect(Collectors.toList());
+    }
+
+
 }
