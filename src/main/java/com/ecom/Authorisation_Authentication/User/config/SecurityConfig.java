@@ -1,5 +1,5 @@
 package com.ecom.Authorisation_Authentication.User.config;
-import com.ecom.Authorisation_Authentication.User.service.UserService;
+import com.ecom.Authorisation_Authentication.User.service.AuthenticationService;
 import com.ecom.Authorisation_Authentication.User.util.JwtAuthFilter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +20,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
-    private final UserService userService;
+    private final AuthenticationService authenticationService;
     private final PasswordEncoder passwordEncoder;
-    // Reduced whitelist for simplicity
     private static final String[] WHITE_LIST_URL = {
             "/api/v1/auth/login",
-            "/api/v1/auth/register"
+            "/api/v1/auth/register",
+            "/api/v1/auth/refresh-token",
+            "/api/v1/auth/check-email",
+            "/api/v1/auth/check-username"
     };
+
     @Bean
     HttpSecurity filterChain(HttpSecurity http) throws Exception {
         return http
@@ -43,7 +46,7 @@ public class SecurityConfig {
     AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new
                 DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService); // Setting our custom user details service
+        provider.setUserDetailsService(authenticationService); // Setting our custom user details service
         provider.setPasswordEncoder(passwordEncoder); // Setting the  password encoder
         return provider;
     }

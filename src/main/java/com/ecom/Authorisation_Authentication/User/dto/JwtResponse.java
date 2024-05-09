@@ -6,5 +6,5 @@ public class JwtResponse {
         this.token = token;
     }
 
-    // Getters and Setters
+
 }

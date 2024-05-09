@@ -9,11 +9,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Service
-public class UserService implements UserDetailsService {
+public class AuthenticationService implements UserDetailsService {
 
 
     private final UserRepository userRepository;
@@ -22,24 +19,26 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository,PasswordEncoder passwordEncoder) {
+    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder=passwordEncoder;
     }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
-                new HashSet<>());
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + username));
+
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.getAuthorities());
     }
 
+
+
     public ResponseEntity<?> registerUser(User user) {
-        if (userRepository.existsByUsername(user.getUsername())) {
+        if (userRepository.existsByUsername(user.getEmail())) {
             return ResponseEntity
                     .badRequest()
-                    .body("Error: Username is already taken!");
+                    .body("Error: Useremail is already taken!");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
