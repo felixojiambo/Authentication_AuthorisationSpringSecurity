@@ -8,11 +8,12 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.core.GrantedAuthority;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -24,9 +25,13 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", user.getId());
         claims.put("email", user.getEmail());
-        claims.put("roles", user.getAuthorities());
-        return createToken(claims, user.getUsername());
+
+        claims.put("roles", user.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
+        return createToken(claims, user.getEmail());
     }
+
     public Boolean validateToken(String token, UserDetails userDetails) {
         Date expirationDate = extractExpiration(token);
         if (expirationDate.before(new Date())) {
@@ -59,10 +64,10 @@ public class JwtService {
                 .getBody();
     }
     private String createToken(Map<String, Object> claims, String
-            username) {
+            email) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() +
                         expiration))
