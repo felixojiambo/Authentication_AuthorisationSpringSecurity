@@ -24,10 +24,10 @@ public class JwtService {
     private String secretKey;
 
     @Value("${application.security.jwt.expiration}")
-    private long expiration; // Access token expiration
+    private long expiration;
 
     @Value("${application.security.jwt.refresh-token-multiplier}")
-    private int refreshTokenMultiplier; // Adjust as needed
+    private int refreshTokenMultiplier;
 
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
